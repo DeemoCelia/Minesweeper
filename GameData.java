@@ -1,3 +1,4 @@
+import javax.swing.*;
 import java.util.Arrays;
 import java.util.Random;
 
@@ -5,6 +6,7 @@ public class GameData {
 	private int time;
 	private int remainingMineCount;
 	private int[][] mineMap;
+
 
 	GameData(int row, int column, int mineCount)
 	{
@@ -20,6 +22,7 @@ public class GameData {
 
 	void generateMineMap(int row,int column,int mineCount)
 	{
+
 		mineMap = new int[row][column];
 
 		int grids = row*column;

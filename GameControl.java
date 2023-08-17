@@ -11,7 +11,15 @@ public class GameControl {
 	}
 
 	void GameStart()
-	{}
+	{
+		gameWindow.initGameMenu();
+
+		while(true)
+		{
+
+		}
+
+	}
 
 
 }
