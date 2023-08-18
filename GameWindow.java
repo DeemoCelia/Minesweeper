@@ -2,183 +2,177 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
-import java.util.Vector;
+import java.util.LinkedList;
 
-public class GameWindow extends JFrame {
-	private JPanel panel;
-
-	public int getGameSelect() {
-		return gameSelect;
+public class GameWindow{
+	public boolean isGameStart() {
+		return gameStart;
 	}
 
-	public void setGameSelect(int gameSelect) {
-		this.gameSelect = gameSelect;
+	public void setGameStart(boolean gameStart) {
+		this.gameStart = gameStart;
 	}
 
-	public boolean isGaming() {
-		return isGaming;
+	public boolean isGameRunning() {
+		return gameRunning;
 	}
 
-	public void setGaming(boolean gaming) {
-		isGaming = gaming;
+	public void setGameRunning(boolean gameRunning) {
+		this.gameRunning = gameRunning;
 	}
 
-	public boolean isReset() {
-		return isReset;
+	private boolean gameStart;
+	private boolean gameRunning;
+
+	public LinkedList<Integer> getPressPositionRow() {
+		return pressPositionRow;
 	}
 
-	public void setReset(boolean reset) {
-		isReset = reset;
+	public LinkedList<Integer> getPressPositionColumn() {
+		return pressPositionColumn;
 	}
 
-	public Vector<Integer> getPressMinePositionRow() {
-		return pressMinePositionRow;
+	private LinkedList<Integer> pressPositionRow;
+	private LinkedList<Integer> pressPositionColumn;
+
+	public MenuWindow menuWindow;
+	public MineMapWindow mineMapWindow;
+	public GameWindow(){
+		menuWindow = new MenuWindow(this);
+		pressPositionRow = new LinkedList<>();
+		pressPositionColumn = new LinkedList<>();
 	}
 
-	public void setPressMinePositionRow(Vector<Integer> pressMinePositionRow) {
-		this.pressMinePositionRow = pressMinePositionRow;
-	}
-
-	public Vector<Integer> getPressMinePositionColumn() {
-		return pressMinePositionColumn;
-	}
-
-	public void setPressMinePositionColumn(Vector<Integer> pressMinePositionColumn) {
-		this.pressMinePositionColumn = pressMinePositionColumn;
-	}
-
-	private int gameSelect; //0: init window; 1: game;
-	private boolean isGaming;
-	private boolean isReset;
-	private Vector<Integer> pressMinePositionRow;
-	private Vector<Integer> pressMinePositionColumn;
-	GameWindow(){
-		pressMinePositionRow = new Vector<>();
-		pressMinePositionColumn = new Vector<>();
-	}
-
-	public void initGameMenu()
+	public void changeToGameWindow(int[][] map, int number)
 	{
-		panel = new JPanel();
-		setTitle("MineSweeper");
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-		drawMenu();
-
-		add(panel);
-
-		pack();
-		setVisible(true);
+		mineMapWindow = new MineMapWindow(this,map,number);
+		menuWindow.setVisible(false);
+		mineMapWindow.setVisible(true);
 	}
 
-	private void drawMenu()
+	public void changeToMenuWindow()
 	{
-		setPreferredSize(new Dimension(500,400));
-		panel.setLayout(new FlowLayout());
-		panel.setPreferredSize(new Dimension(400,300));
-		JButton button1 = new JButton("初级");
-		button1.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				gameSelect = 1;
-				isGaming = true;
-			}
-		});
-		panel.add(button1);
-	}
-
-	private void drawGame(int remaingMineCount, int[][] mineMap)
-	{
-		panel.removeAll();
-		panel.setLayout(null);
-
-		Dimension panelSize = new Dimension(20+20+mineMap[0].length*10,50+mineMap.length*10+10);
-		panel.setSize(panelSize);
-		int mineMapPositionX = 20;
-		int mineMapPositionY = 50;
-
-		Rectangle windowRemainingMineCountSize = new Rectangle(20,20,30,15);
-		Rectangle windowResetGameSize = new Rectangle(panel.getX()/2-15,15,30,30);
-		Rectangle windowUsedTimeSize = new Rectangle(panel.getX()-20,20,30,15);
-		Dimension windowMineButtonSize = new Dimension(10,10);
-
-		JLabel labelRemainingMineCount = new JLabel(remaingMineCount+"");
-		labelRemainingMineCount.setBounds(windowRemainingMineCountSize);
-
-		JButton resetButton = new JButton("重新开始");
-		resetButton.setBounds(windowResetGameSize);
-		resetButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				isReset = true;
-			}
-		});
-
-		JLabel labelUsedTime = new JLabel("0");
-		labelUsedTime.setBounds(windowUsedTimeSize);
-
-		panel.add(labelRemainingMineCount);
-		panel.add(resetButton);
-		panel.add(labelUsedTime);
-
-		int row = mineMap.length;
-		int column = mineMap[0].length;
-
-		for(int r = 0;r<row;++r)
+		if(mineMapWindow!=null)
 		{
-			for(int c = 0;c<column;++c)
-			{
-				MineButton mb = new MineButton();
-				mb.setRowPosition(r);
-				mb.setColumnPosition(c);
-				mb.setShow(false);
-				mb.setBounds(mineMapPositionX+r*10,mineMapPositionY+c*10,10,10);
-				mb.addActionListener(new ActionListener() {
-					@Override
-					public void actionPerformed(ActionEvent e) {
-						MineButton theMB = (MineButton) e.getSource();
-						if(!theMB.isShow())
-						{
-							pressMinePositionRow.add(theMB.getRowPosition());
-							pressMinePositionColumn.add(theMB.getColumnPosition());
-							theMB.setShow(true);
-						}
-					}
-				});
-				panel.add(mb);
-			}
+			mineMapWindow.dispose();
+			mineMapWindow = null;
 		}
+		menuWindow.setVisible(true);
 	}
 }
 
-class MineButton extends JButton
-{
-	private int rowPosition;
-	private int columnPosition;
-	private boolean isShow;
+class MenuWindow extends JFrame{
+	private GameWindow gameWindow;
 
-	public int getRowPosition() {
-		return rowPosition;
-	}
+	MenuWindow(GameWindow gw){
+		gameWindow = gw;
 
-	public void setRowPosition(int rowPosition) {
-		this.rowPosition = rowPosition;
+		gameWindow.setGameStart(false);
+		gameWindow.setGameRunning(false);
+		setTitle("MineSweeper");
+		setSize(600,800);
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setLayout(new FlowLayout());
+		JButton startButton = new JButton("start");
+		startButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				gameWindow.setGameStart(true);
+			}
+		});
+		add(startButton);
 	}
+}
 
-	public int getColumnPosition() {
-		return columnPosition;
-	}
+class MineMapWindow extends JFrame{
 
-	public void setColumnPosition(int columnPosition) {
-		this.columnPosition = columnPosition;
-	}
+	private GameWindow gameWindow;
+	public int minesNumber;
+	private int[][] mineMap;
 
-	public boolean isShow() {
-		return isShow;
-	}
+	private JLabel remainingMinesCount;
+	MineMapWindow(GameWindow gw, int[][] map, int number){
+		gameWindow = gw;
+		mineMap = map;
+		minesNumber = number;
 
-	public void setShow(boolean show) {
-		isShow = show;
+		gameWindow.setGameStart(false);
+		gameWindow.setGameRunning(true);
+		setTitle("MineSweeper");
+		setSize(600,800);
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+		remainingMinesCount = new JLabel(minesNumber+"");
+		remainingMinesCount.setBounds(50,50,40,20);
+		remainingMinesCount.setVisible(true);
+		add(remainingMinesCount);
+
+		int mapRow = mineMap.length;
+		int mapColumn = mineMap[0].length;
+		int mapPositionRow = 50;
+		int mapPositionColumn = 150;
+
+		for(int r = 0; r < mapRow; ++r)
+		{
+			for(int c = 0; c < mapColumn; ++c)
+			{
+				MineButton mb = new MineButton();
+				mb.isShowing = false;
+				mb.isMarked = false;
+				mb.positionRow = r;
+				mb.positionColumn = c;
+				mb.value = mineMap[r][c];
+				mb.addMouseListener(new MouseAdapter() {
+					@Override
+					public void mouseClicked(MouseEvent e) {
+						MineButton mineButton = (MineButton) e.getSource();
+						if(SwingUtilities.isLeftMouseButton(e)) {
+							if(!mineButton.isShowing && !mineButton.isMarked)
+							{
+								mineButton.isShowing = true;
+								if(mineButton.value == -1)
+									mineButton.setText("x");
+								else
+									mineButton.setText(mineButton.value + "");
+								gameWindow.getPressPositionRow().add(mineButton.positionRow);
+								gameWindow.getPressPositionColumn().add(mineButton.positionColumn);
+
+							}
+						}else if(SwingUtilities.isRightMouseButton(e)) {
+							if(!mineButton.isShowing)
+							{
+								if(mineButton.isMarked){
+									mineButton.isMarked = false;
+									mineButton.setText("");
+									minesNumber+=1;
+									remainingMinesCount.setText(minesNumber+"");
+								}else{
+									mineButton.isMarked = true;
+									mineButton.setText("M");
+									minesNumber-=1;
+									remainingMinesCount.setText(minesNumber+"");
+								}
+							}
+						}
+					}
+				});
+				mb.setVisible(true);
+				mb.setBounds(mapPositionRow+r*50,mapPositionColumn+c*50,50,50);
+				add(mb);
+			}
+		}
+
+
 	}
+}
+
+class MineButton extends JButton{
+	public int positionRow;
+	public int positionColumn;
+	public boolean isShowing;
+	public boolean isMarked;
+	public int value;
 }

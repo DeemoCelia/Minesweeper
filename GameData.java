@@ -30,14 +30,32 @@ public class GameData {
 
 		Random random = new Random();
 
+		int generateCount = 0;
 		for(int r = 0;r<row;++r)
 		{
 			for(int c = 0;c<column;++c)
 			{
+				if(generateCount == mineCount)
+					break;
 				if(random.nextDouble()<minePercent)
 				{
+					generateCount+=1;
 					mineMap[r][c] = -1;
 					accAroundGrid(mineMap,r,c);
+				}
+			}
+		}
+
+		if(generateCount<mineCount)
+		{
+			while (generateCount<mineCount) {
+				int randomRow = Math.abs(random.nextInt()%row);
+				int randomColumn = Math.abs(random.nextInt()%column);
+				if(mineMap[randomRow][randomColumn]!=-1)
+				{
+					mineMap[randomRow][randomColumn] = -1;
+					accAroundGrid(mineMap,randomRow,randomColumn);
+					generateCount+=1;
 				}
 			}
 		}
@@ -70,9 +88,8 @@ public class GameData {
 
 	void showMineMap()
 	{
-		for(int i=0;i<mineMap.length;++i)
-		{
-			System.out.println(Arrays.toString(mineMap[i]));
+		for (int[] ints : mineMap) {
+			System.out.println(Arrays.toString(ints));
 		}
 	}
 
