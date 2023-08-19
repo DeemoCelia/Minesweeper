@@ -35,8 +35,13 @@ public class GameWindow{
 		return pressPositionColumn;
 	}
 
+	public LinkedList<Integer> getClickedMsg() {
+		return clickedMsg;
+	}
+
 	private LinkedList<Integer> pressPositionRow;
 	private LinkedList<Integer> pressPositionColumn;
+	private LinkedList<Integer> clickedMsg; //0: leftClick; 1:rightClickMark; 2:rightClickUnmark
 
 	public MenuWindow menuWindow;
 	public MineMapWindow mineMapWindow;
@@ -44,6 +49,7 @@ public class GameWindow{
 		menuWindow = new MenuWindow(this);
 		pressPositionRow = new LinkedList<>();
 		pressPositionColumn = new LinkedList<>();
+		clickedMsg = new LinkedList<>();
 	}
 
 	public void changeToGameWindow(int[][] map, int number)
@@ -91,6 +97,7 @@ class MineMapWindow extends JFrame{
 
 	private GameWindow gameWindow;
 	public int minesNumber;
+	public int initMinesNumber;
 	private int[][] mineMap;
 
 	private JLabel remainingMinesCount;
@@ -98,11 +105,13 @@ class MineMapWindow extends JFrame{
 		gameWindow = gw;
 		mineMap = map;
 		minesNumber = number;
+		initMinesNumber = number;
 
 		gameWindow.setGameStart(false);
 		gameWindow.setGameRunning(true);
 		setTitle("MineSweeper");
 		setSize(600,800);
+		setLayout(null);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		remainingMinesCount = new JLabel(minesNumber+"");
@@ -137,26 +146,32 @@ class MineMapWindow extends JFrame{
 									mineButton.setText("x");
 								else
 									mineButton.setText(mineButton.value + "");
+								gameWindow.getClickedMsg().add(0);
 								gameWindow.getPressPositionRow().add(mineButton.positionRow);
 								gameWindow.getPressPositionColumn().add(mineButton.positionColumn);
-
 							}
 						}else if(SwingUtilities.isRightMouseButton(e)) {
 							if(!mineButton.isShowing)
 							{
-								if(mineButton.isMarked){
-									mineButton.isMarked = false;
-									mineButton.setText("");
-									minesNumber+=1;
-									remainingMinesCount.setText(minesNumber+"");
-								}else{
+								if(minesNumber > 0 && !mineButton.isMarked){
 									mineButton.isMarked = true;
 									mineButton.setText("M");
 									minesNumber-=1;
-									remainingMinesCount.setText(minesNumber+"");
+									gameWindow.getClickedMsg().add(1);
+									gameWindow.getPressPositionRow().add(mineButton.positionRow);
+									gameWindow.getPressPositionColumn().add(mineButton.positionColumn);
+								}else if(minesNumber < initMinesNumber && mineButton.isMarked){
+									mineButton.isMarked = false;
+									mineButton.setText("");
+									minesNumber+=1;
+									gameWindow.getClickedMsg().add(2);
+									gameWindow.getPressPositionRow().add(mineButton.positionRow);
+									gameWindow.getPressPositionColumn().add(mineButton.positionColumn);
 								}
+								remainingMinesCount.setText(minesNumber+"");
 							}
 						}
+
 					}
 				});
 				mb.setVisible(true);

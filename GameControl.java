@@ -34,14 +34,35 @@ public class GameControl {
 				{
 					int pressPositionRow = gameWindow.getPressPositionRow().getFirst();
 					int pressPositionColumn = gameWindow.getPressPositionColumn().getFirst();
+					int clickMsg = gameWindow.getClickedMsg().getFirst();
 					gameWindow.getPressPositionRow().removeFirst();
 					gameWindow.getPressPositionColumn().removeFirst();
+					gameWindow.getClickedMsg().removeFirst();
 
-					if(gameData.getMineMap()[pressPositionRow][pressPositionColumn] == -1)
+					int gridValue = gameData.getMineMap()[pressPositionRow][pressPositionColumn];
+
+					if(clickMsg == 0 && gridValue == -1)
 					{
+						System.out.println("lose");
 						gameWindow.changeToMenuWindow();
 						gameData.clearMap();
 					}
+					else if(clickMsg == 1){
+						if(gridValue == -1)
+							gameData.setRemainingMineCount(gameData.getRemainingMineCount()-1);
+					}
+					else if(clickMsg == 2){
+						if(gridValue == -1){
+							gameData.setRemainingMineCount(gameData.getRemainingMineCount()+1);
+						}
+					}
+				}
+
+				if(gameData.getRemainingMineCount() == 0)
+				{
+					System.out.println("win");
+					gameData.clearMap();
+					gameWindow.changeToMenuWindow();
 				}
 			}
 		}
