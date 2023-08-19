@@ -4,5 +4,6 @@ public class Minesweeper {
 		GameWindow gw = new GameWindow();
 		GameControl gc = new GameControl(gd,gw);
 		gc.GameStart();
+
 	}
 }
